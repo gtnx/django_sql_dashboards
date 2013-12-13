@@ -1,0 +1,8 @@
+{% if data %}
+<table class="table table-condensed">
+  <tr><th>Rows</th><th>Select type</th><th>Possible keys</th><th>Key</th><th>Key len</th></tr>
+  <tr><td>{{data.rows}}</td><td>{{data.select_type}}</td><td>{{data.possible_keys}}</td><td>{{data.key}}</td><td>{{data.key_ken}}</td></tr>
+</table>
+{% else %}
+{{error}}
+{% endif %}

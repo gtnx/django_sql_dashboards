@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="container">
+  <div class="row">
+    {% include "django_sql_dashboards/query_all.html" %}
+  </div>
+  <div class="row">
+    {% include "django_sql_dashboards/dashboard_all.html" %}
+  </div>
+</div>
+{% endblock %}
+

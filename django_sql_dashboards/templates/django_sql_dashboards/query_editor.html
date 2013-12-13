@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block body %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+
+<script type="text/javascript" src="/sql_dashboards/static/prism.js"></script>
+<link href="/sql_dashboards/static/prism.css" rel="stylesheet">
+
+<div class="container">
+  <!-- <h1>Test prism</h1> -->
+  <div class="row">
+    <div class="col-lg-4">
+      <form action="{{request.path}}" method="post">{% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
+          <button type="submit" name="run" class="btn btn-primary" style="display:none;">Run</button>
+          <button type="submit" name="save" class="btn btn-primary" style="display:none;">Save</button>
+        {% endbuttons %}
+      </form>
+      <div class="row">
+        <div id="query_status" class="col-lg-6"></div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <pre id="id_query_pre"><code class="language-sql"></code></pre>
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#chart" data-toggle="tab">Chart</a></li>
+        <li><a href="#data" data-toggle="tab">Data</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane active" id="chart"></div>
+        <div id="chart" class="row">
+        </div>
+
+        <div class="tab-pane" id="data">
+          <table class="table table-condensed">
+          <tr>
+            {% for header in headers %}
+            <th>{{header}}</th>
+            {% endfor %}
+          </tr>
+          {% for row in data %}
+          <tr>
+            {% for cell in row %}
+            <td>{{cell}}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% if obj %}
+{% with "chart" as id_div %}
+{% include "highcharts.html" %}
+{% endwith %}
+{% endif %}
+
+<script type="text/javascript">
+  var prev_sql_query_1 = undefined;
+  var prev_sql_query_2 = undefined;
+
+  function parse_pre()
+  {
+    sql_query = $("#id_query")[0].value;
+    if ((sql_query == prev_sql_query_1) && (sql_query != prev_sql_query_2) && sql_query.length)
+    {
+      prev_sql_query_2 = sql_query;
+      $("#id_query_pre code").html(sql_query);
+      Prism.highlightAll();
+      $.ajax({
+        url: "/sql_dashboards/test_query?query=" + encodeURIComponent(sql_query),
+        statusCode:{
+          200:function(data) {
+            $("button[name='run']").show();
+            $("button[name='save']").show();
+            $("#id_query").parent().removeClass("has-error").addClass("has-success");
+            $("#id_query").parent().find("span").remove();
+          },
+          202:function(data) {
+            $("button[name='run']").hide();
+            $("button[name='save']").hide();
+            $("#id_query").parent().removeClass("has-success").addClass("has-error");
+            $("#id_query").parent().find("span").remove();
+            $("#id_query").parent().append("<span class=\"help-block\">" + data + "</span>");
+          }
+        }
+      });
+    }
+    prev_sql_query_1 = sql_query;
+    setTimeout(parse_pre, 1000);
+  }
+  $(document).ready(function() {
+    parse_pre();
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% if queries %}
+<h3><a href="/sql_dashboards/query/">Queries</a> (<a href="/sql_dashboards/query/add">Add</a>)</h3>
+<table class="table table-condensed">
+  <tr><th>Query</th></tr>
+  {% for query in queries %}
+  <tr><td><a href="/sql_dashboards/query/edit/{{query.id}}">{{query}}</a></td></tr>
+  {% endfor %}
+</table>
+{% endif %}

@@ -1,0 +1,9 @@
+{% if dashboards %}
+<h3><a href="/sql_dashboards/dashboard/">Dashboards</a> (<a href="/sql_dashboards/dashboard/add">Add</a>)</h3>
+<table class="table table-condensed">
+  <tr><th>Dashboard</th></tr>
+  {% for dashboard in dashboards %}
+  <tr><td><a href="/sql_dashboards/dashboard/edit/{{dashboard.id}}">{{dashboard}}</a></td></tr>
+  {% endfor %}
+</table>
+{% endif %}
