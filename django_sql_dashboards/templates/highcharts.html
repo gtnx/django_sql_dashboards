@@ -1,0 +1,50 @@
+<script type="text/javascript" src="/sql_dashboards/static/highcharts.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $('#{{id_div}}').highcharts({
+            chart: {
+                type: '{{obj.type}}',
+            },
+            title: {
+                text: '{{obj.title|escapejs}}',
+            },
+            subtitle: {
+                text: '{{obj.subtitle|escapejs}}',
+            },
+            xAxis: {
+                categories: [{% for category in obj.categories %}'{{category|escapejs}}',{% endfor %}],
+                title: {
+                    enabled: true,
+                    text: '{{obj.xlegend}}'
+                },
+            },
+            yAxis: {
+                title: {
+                    text: '{{obj.ylegend}}',
+                },
+                // plotLines: [{
+                //     value: 0,
+                //     width: 1,
+                //     color: '#808080'
+                // }]
+            },
+            // tooltip: {
+            //     valueSuffix: '°C'
+            // },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            series: [
+            {% for serie in obj.series %}
+            {
+                name: '{{serie.name|escapejs}}',
+                data: [{% for y in serie.data %}{{y|floatformat:3}},{% endfor %}]
+            },
+            {% endfor %}
+            ]
+        });
+    });
+</script>

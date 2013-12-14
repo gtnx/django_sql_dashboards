@@ -34,7 +34,7 @@
 
       <div class="tab-content">
         <div class="tab-pane active" id="chart"></div>
-        <div id="chart" class="row">
+        <div id="my_chart" class="row">
         </div>
 
         <div class="tab-pane" id="data">
@@ -59,7 +59,7 @@
 
 </div>
 {% if obj %}
-{% with "chart" as id_div %}
+{% with "my_chart" as id_div %}
 {% include "highcharts.html" %}
 {% endwith %}
 {% endif %}
@@ -77,7 +77,7 @@
       $("#id_query_pre code").html(sql_query);
       Prism.highlightAll();
       $.ajax({
-        url: "/sql_dashboards/test_query?query=" + encodeURIComponent(sql_query),
+        url: "/sql_dashboards/test_query?db=" + $("#id_db :selected")[0].value + "&query=" + encodeURIComponent(sql_query),
         statusCode:{
           200:function(data) {
             $("button[name='run']").show();

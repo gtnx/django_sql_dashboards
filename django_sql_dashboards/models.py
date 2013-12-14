@@ -3,6 +3,7 @@ from django.template import Context, loader
 from db import DB
 
 class DbConfig(models.Model):
+  name = models.CharField(max_length = 255)
   host = models.CharField(max_length = 255)
   user = models.CharField(max_length = 255)
   passwd = models.CharField(max_length = 255)
@@ -11,6 +12,9 @@ class DbConfig(models.Model):
   ts_create = models.DateTimeField(auto_now_add = True)
   ts_update = models.DateTimeField(auto_now_add = True, auto_now = True)
 
+  class Meta:
+    ordering = ["name"]
+    
   def getDb(self):
     return DB(host = self.host, user = self.user, passwd = self.passwd, db = self.db)
 

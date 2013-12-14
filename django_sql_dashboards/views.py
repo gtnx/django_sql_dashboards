@@ -2,7 +2,7 @@ from django.http import *
 from django.shortcuts import render_to_response, HttpResponse, HttpResponseRedirect, RequestContext
 from django.db import connection, DatabaseError
 
-from models import Query, Dashboard, DashboardQuery
+from models import Query, Dashboard, DashboardQuery, DbConfig
 from forms import QueryForm
 
 def default(request):
@@ -41,7 +41,7 @@ def query_editor(request, query_id = None):
   if query:
     data, headers, obj = query.getAll()
   if request.method == "POST" and "save" in request.POST:
-    return HttpResponseRedirect("/query_editor/%s" % query.id)
+    return HttpResponseRedirect("/sql_dashboards/query/edit/%s" % query.id)
   return render_to_response("django_sql_dashboards/query_editor.html", locals(), RequestContext(request))
 
 def dashboard_editor(request, dashboard_id = None):
@@ -76,7 +76,7 @@ def to_highcharts(request, query_id):
 def test_query(request):
   response_data = {}
   try:
-    cursor = connection.cursor()
+    cursor = DbConfig.objects.get(id = int(request.GET.get("db"))).getDb().curs
     cursor.execute("explain %s" % request.GET.get("query",""))
     row = cursor.fetchone()
     response_data["data"] = dict([(cursor.description[i][0], row[i]) for i in range(len(cursor.description))])

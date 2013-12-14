@@ -2,7 +2,9 @@ from django.contrib import admin
 from models import DbConfig, Query, Dashboard
 
 class DbConfigAdmin(admin.ModelAdmin):
-    pass
+  list_display = ["name", "user", "host", "db"]
+  list_filter = ["host"]
+  search_fields = ["name"]
 admin.site.register(DbConfig, DbConfigAdmin)
 
 class QueryAdmin(admin.ModelAdmin):
