@@ -19,7 +19,17 @@ def home(request):
 def query_view(request):
   query_filter = QueryFilter(request.GET, queryset=Query.objects.all())
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))
-  
+
+def query_delete(request, query_id):
+  try:
+    query = Query.objects.get(id = query_id)
+    if query.creator == request.user:
+      query.delete()
+      return HttpResponseRedirect("/sql_dashboards/query")
+  except Exception as e:
+    print(str(e))
+  raise Http404
+
 def dashboard_view(request):
   dashboard_filter = DashboardFilter(request.GET, queryset=Dashboard.objects.all())
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))
