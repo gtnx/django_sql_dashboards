@@ -1,6 +1,7 @@
 from django.db import models
 from django.template import Context, loader
 from db import DB
+from django.contrib.auth.models import User
 
 class DbConfig(models.Model):
   name = models.CharField(max_length = 255)
@@ -23,7 +24,7 @@ class DbConfig(models.Model):
 
 class Query(models.Model):
   db = models.ForeignKey(DbConfig)
-  title = models.CharField(max_length = 255, blank = True)
+  title = models.CharField(max_length = 255)
   subtitle = models.CharField(max_length = 255, blank = True)
   xlegend = models.CharField(max_length = 255, blank = True)
   ylegend = models.CharField(max_length = 255, blank = True)
@@ -33,7 +34,13 @@ class Query(models.Model):
                                                        ('column', 'Column Chart'),
                                                        ('bar', 'Bar Chart')))
   query = models.TextField(blank = True)
-  
+  creator = models.ForeignKey(User)
+
+  ts_create = models.DateTimeField(auto_now_add = True)
+  ts_update = models.DateTimeField(auto_now_add = True, auto_now = True)
+
+  public = models.BooleanField(default = True)
+
   def execute(self):
     return self.db.getDb().hquery(self.query)
 

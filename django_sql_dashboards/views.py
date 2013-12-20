@@ -38,11 +38,10 @@ def query_editor(request, query_id = None):
   elif request.method == "POST" and ("run" in request.POST or "save" in request.POST):
     form = QueryForm(request.POST, instance = query) if query else QueryForm(request.POST) 
     if form.is_valid():
-      query = form.save(commit = "save" in request.POST)
+      query = form.save(commit = "save" in request.POST, user = request.user)
 
   if query:
     data, headers, obj = query.getAll()
-    print(obj)
   if request.method == "POST" and "save" in request.POST:
     return HttpResponseRedirect("/sql_dashboards/query/edit/%s" % query.id)
   return render_to_response("django_sql_dashboards/query_editor.html", locals(), RequestContext(request))
