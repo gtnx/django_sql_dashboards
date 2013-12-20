@@ -1,5 +1,7 @@
 {% extends "base.html" %}
-
+{% block title %}
+{{obj.title}}
+{% endblock %}
 {% block body %}
 {% load bootstrap3 %}
 {% bootstrap_css %}
@@ -14,9 +16,13 @@
   <div class="row">
     <div class="col-lg-4">
       <form action="{{request.path}}" method="post">{% csrf_token %}
+        {% buttons %}
+          <button type="submit" name="run" class="btn btn-primary" style="display:none;">Run</button>&nbsp
+          <button type="submit" name="save" class="btn btn-primary" style="display:none;">Save</button>
+        {% endbuttons %}
         {% bootstrap_form form %}
         {% buttons %}
-          <button type="submit" name="run" class="btn btn-primary" style="display:none;">Run</button>
+          <button type="submit" name="run" class="btn btn-primary" style="display:none;">Run</button>&nbsp
           <button type="submit" name="save" class="btn btn-primary" style="display:none;">Save</button>
         {% endbuttons %}
       </form>
