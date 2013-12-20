@@ -71,7 +71,12 @@ def dashboard_editor(request, dashboard_id = None):
   return render_to_response("django_sql_dashboards/dashboard_editor.html", locals(), RequestContext(request))
 
 def dashboard_delete_query(request, dashboard_id, query_id):
-  DashboardQuery.objects.filter(dashboard_id = dashboard_id, query_id = query_id).delete()
+  try:
+    dashboard = Dashboard.objects.get(id = dashboard_id)
+    if dashboard.creator == request.user:
+      DashboardQuery.objects.filter(dashboard_id = dashboard_id, query_id = query_id).delete()
+  except Exception as e:
+    print(str(e))
   return HttpResponseRedirect("/sql_dashboards/dashboard/edit/%s" % dashboard_id)
 
 def dashboard_editor_change_order(request, dashboard_id = None):

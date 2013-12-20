@@ -67,7 +67,7 @@
       <div class="highlight text-left">
       <a href="/sql_dashboards/query/edit/{{query.id}}">Edit</a> | 
       <a onclick="reloadQuery({{query.id}})" href="#" onclick="reloadQuery({{query.id}})">Reload</a> |
-      <a href="/sql_dashboards/dashboard/{{dashboard.id}}/delete_query/{{query.id}}">Delete</a>
+      {% if request.user == dashboard.creator %}<a href="/sql_dashboards/dashboard/{{dashboard.id}}/delete_query/{{query.id}}">Delete</a>{% endif %}
         <div id="id_query_{{query.id}}" class="highlight">
           {{query.toHighcharts}}
         </div>
