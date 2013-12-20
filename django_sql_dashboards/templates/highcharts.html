@@ -3,6 +3,7 @@
         $('#{{id_div}}').highcharts({
             chart: {
                 type: '{{obj.type}}',
+                zoomType:'xy'
             },
             title: {
                 text: '{{obj.title|escapejs}}',
@@ -29,8 +30,8 @@
             },
             legend: {
                 layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'middle',
+                align: {% if obj.legend_align == "left" or obj.legend_align == "right" %}'{{obj.legend_align}}'{% else %}'center'{% endif %},
+                verticalAlign: {% if obj.legend_align == "top" or obj.legend_align == "bottom" %}'{{obj.legend_align}}'{% else %}'middle'{% endif %},
                 borderWidth: 0
             },
             series: [
@@ -40,7 +41,7 @@
                 data: [{% for y in serie.data %}{{y|floatformat:3}},{% endfor %}]
             },
             {% endfor %}
-            ]
+            ],
         });
     });
 </script>

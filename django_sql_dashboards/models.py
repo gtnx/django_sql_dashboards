@@ -41,6 +41,8 @@ class Query(models.Model):
 
   public = models.BooleanField(default = True)
 
+  legend_align = models.CharField(max_length = 64, choices = (('top', 'Top'), ('left', 'Left'), ('bottom', 'Bottom'), ('right', 'Right'), ))
+
   def execute(self):
     return self.db.getDb().hquery(self.query)
 
@@ -50,7 +52,8 @@ class Query(models.Model):
            "subtitle": self.subtitle,
            "xlegend": self.xlegend,
            "ylegend": self.ylegend,
-           "type": self.type}
+           "type": self.type,
+           "legend_align": self.legend_align}
     obj["categories"] = [i[0] for i in data]
     obj["series"] = [{"name": headers[i], "data": [row[i] for row in data]} for i in range(1, len(headers))]
     return data, headers, obj
@@ -69,7 +72,7 @@ class Dashboard(models.Model):
   title = models.CharField(max_length = 255, blank = True)
   column_nb = models.IntegerField(choices = ((1, 1), (2, 2), (3, 3), (4, 4), (6, 6)))
   creator = models.ForeignKey(User)
-  
+
   def __unicode__(self):
     return self.title
 
