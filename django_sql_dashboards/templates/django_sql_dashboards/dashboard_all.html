@@ -1,9 +1,16 @@
-{% if dashboards %}
-<h3><a href="/sql_dashboards/dashboard/">Dashboards</a> (<a href="/sql_dashboards/dashboard/add">Add</a>)</h3>
-<table class="table table-condensed">
-  <tr><th>Dashboard</th></tr>
-  {% for dashboard in dashboards %}
-  <tr><td><a href="/sql_dashboards/dashboard/edit/{{dashboard.id}}">{{dashboard}}</a></td></tr>
+{% if dashboard_filter %}
+<h3><a href="/sql_dashboards/dashboard/">Dashboard</a> (<a href="/sql_dashboards/dashboard/add">Add</a>)</h3>
+<div class="col-lg-6">
+  <table class="table table-condensed">
+    <tr><th>Title</th><th>Db</th></tr>
+  {% for obj in dashboard_filter %}
+    <tr><td><a href="/sql_dashboards/dashboard/edit/{{obj.id}}">{{obj.title}}</a></td><td>{{obj.db}}</td></tr>
   {% endfor %}
-</table>
+  </table>
+</div>
+<div class="col-lg-2">
+  {{ dashboard_filter.form.as_p }}
+</div>
+{% else %}
+<h3><a href="/sql_dashboards/dashboard">Voir toutes les dashboards</a></h3>
 {% endif %}

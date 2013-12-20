@@ -1,9 +1,12 @@
+from django.views.generic.list import ListView
 from django.http import *
 from django.shortcuts import render_to_response, HttpResponse, HttpResponseRedirect, RequestContext
 from django.db import connection, DatabaseError
+from django.db.models import Max
 
 from models import Query, Dashboard, DashboardQuery, DbConfig
-from forms import QueryForm
+from forms import QueryForm, QueryAddForm
+from filters import QueryFilter, DashboardFilter
 
 def default(request):
   return HttpResponseRedirect("/sql_dashboards", RequestContext(request))
@@ -13,14 +16,13 @@ def home(request):
   dashboards = Dashboard.objects.all
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))  
 
-def query_all(request):
-  queries = Query.objects.all()
+def query_view(request):
+  query_filter = QueryFilter(request.GET, queryset=Query.objects.all())
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))
-
-def dashboard_all(request):
-  print("ok")
-  dashboards = Dashboard.objects.all()
-  return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))  
+  
+def dashboard_view(request):
+  dashboard_filter = DashboardFilter(request.GET, queryset=Dashboard.objects.all())
+  return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))
 
 def query_editor(request, query_id = None):
   form = QueryForm(request.POST) if request.method == 'POST' else QueryForm()
@@ -40,12 +42,27 @@ def query_editor(request, query_id = None):
 
   if query:
     data, headers, obj = query.getAll()
+    print(obj)
   if request.method == "POST" and "save" in request.POST:
     return HttpResponseRedirect("/sql_dashboards/query/edit/%s" % query.id)
   return render_to_response("django_sql_dashboards/query_editor.html", locals(), RequestContext(request))
 
 def dashboard_editor(request, dashboard_id = None):
   dashboard = None
+  form = QueryAddForm()
+  if request.method == "POST" and "add" in request.POST:
+    form = QueryAddForm(request.POST)
+    if form.is_valid():
+      order_id = DashboardQuery.objects.filter(dashboard_id = dashboard_id).aggregate(Max('order_id'))["order_id__max"]
+      order_id = order_id + 1 if order_id else 0
+      try:
+        dq = DashboardQuery.objects.get(query = form.cleaned_data["query"], dashboard_id = dashboard_id)
+        dq.order_id = order_id
+      except:
+        dq = DashboardQuery(query = form.cleaned_data["query"], dashboard_id = dashboard_id, order_id = order_id)
+      dq.save()
+
+  form.fields["query"].queryset = Query.objects.exclude(dashboardquery__dashboard = dashboard_id)
   if dashboard_id:
     try:
       dashboard = Dashboard.objects.get(id = dashboard_id)
@@ -53,6 +70,10 @@ def dashboard_editor(request, dashboard_id = None):
       print(str(e))
       return HttpResponseRedirect("/sql_dashboards/dashboard")
   return render_to_response("django_sql_dashboards/dashboard_editor.html", locals(), RequestContext(request))
+
+def dashboard_delete_query(request, dashboard_id, query_id):
+  DashboardQuery.objects.filter(dashboard_id = dashboard_id, query_id = query_id).delete()
+  return HttpResponseRedirect("/sql_dashboards/dashboard/edit/%s" % dashboard_id)
 
 def dashboard_editor_change_order(request, dashboard_id = None):
   dashboard = None

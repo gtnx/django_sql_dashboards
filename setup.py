@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 setup(
     name='django_sql_dashboards',
-    version='0.0.2-7',
+    version='0.0.3-2',
     author=u'Guillaume Thomas',
     description='',
     long_description=open('README.txt').read(),

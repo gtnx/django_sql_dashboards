@@ -14,12 +14,12 @@ class DbConfig(models.Model):
 
   class Meta:
     ordering = ["name"]
-    
+
   def getDb(self):
     return DB(host = self.host, user = self.user, passwd = self.passwd, db = self.db)
 
   def __unicode__(self):
-    return "%s@%s:%s" % (self.user, self.host, self.db)
+    return "%s (%s@%s:%s)" % (self.name, self.user, self.host, self.db)
 
 class Query(models.Model):
   db = models.ForeignKey(DbConfig)
@@ -27,7 +27,8 @@ class Query(models.Model):
   subtitle = models.CharField(max_length = 255, blank = True)
   xlegend = models.CharField(max_length = 255, blank = True)
   ylegend = models.CharField(max_length = 255, blank = True)
-  type = models.CharField(max_length = 255, choices = (('line', 'Line Chart'), 
+  type = models.CharField(max_length = 255, choices = (('table', 'Table'),
+                                                       ('line', 'Line Chart'), 
                                                        ('area', 'Area Chart'), 
                                                        ('column', 'Column Chart'),
                                                        ('bar', 'Bar Chart')))
@@ -52,7 +53,9 @@ class Query(models.Model):
 
   def toHighcharts(self):
     id_div = "id_query_%s" % self.id
-    obj = self.getAll()[2]
+    data, headers, obj = self.getAll()
+    if self.type == "table":
+      return loader.get_template('django_sql_dashboards/table.html').render(Context(locals()))
     return loader.get_template('django_sql_dashboards/highcharts.html').render(Context(locals()))
 
 class Dashboard(models.Model):

@@ -28,41 +28,26 @@
     <div class="col-lg-8">
       <pre id="id_query_pre"><code class="language-sql"></code></pre>
       <ul class="nav nav-tabs">
-        <li class="active"><a href="#chart" data-toggle="tab">Chart</a></li>
+        <li class="active"><a href="#id_query_{{query.id}}" data-toggle="tab">Chart</a></li>
         <li><a href="#data" data-toggle="tab">Data</a></li>
       </ul>
 
       <div class="tab-content">
-        <div class="tab-pane active" id="chart"></div>
-        <div id="my_chart" class="row">
+        <div class="tab-pane active" id="id_query_{{query.id}}">
+          {% if obj %}
+          {{query.toHighcharts}}
+          {% endif %}
         </div>
+        <!-- <div id="my_chart" class="row"></div> -->
 
         <div class="tab-pane" id="data">
-          <table class="table table-condensed">
-          <tr>
-            {% for header in headers %}
-            <th>{{header}}</th>
-            {% endfor %}
-          </tr>
-          {% for row in data %}
-          <tr>
-            {% for cell in row %}
-            <td>{{cell}}</td>
-            {% endfor %}
-          </tr>
-          {% endfor %}
-          </table>
+          {% include "django_sql_dashboards/table.html" %}
         </div>
       </div>
     </div>
   </div>
 
 </div>
-{% if obj %}
-{% with "my_chart" as id_div %}
-{% include "highcharts.html" %}
-{% endwith %}
-{% endif %}
 
 <script type="text/javascript">
   var prev_sql_query_1 = undefined;

@@ -34,7 +34,7 @@
       revert: true,
       update:function(event, ui) {
         $.ajax({
-          url:"/dashboard_editor/{{dashboard.id}}/change_order?order=" + getWidgetIds().join(","),
+          url:"/sql_dashboards/dashboard/{{dashboard.id}}/change_order?order=" + getWidgetIds().join(","),
         });
       }
     });
@@ -43,13 +43,16 @@
   });
   function reloadQuery(query_id)
   {
+    $("#id_query_" + query_id).hide();
     $.ajax({
-      url:"/to_highcharts/" + query_id,
+      url:"/sql_dashboards/query/to_highcharts/" + query_id,
       statusCode:{
         200:function(data) {
+          $("#id_query_" + query_id).show();
           $("#id_query_" + query_id).html(data);
         },
         202:function(data) {
+          $("#id_query_" + query_id).show();
           $("#id_query_" + query_id).html("<p class=\"text-danger\"><b>Error : " + data + "</b></p>");
         }
       }
@@ -62,7 +65,9 @@
     {% for query in dashboard.queries %}
     <li id="widget_{{query.id}}" class="ui-state-default col-lg-{{dashboard.getColumnSize}}" style="floaf:left;">
       <div class="highlight text-left">
-      <a href="/query_editor/{{query.id}}">Edit</a> | <a onclick="reloadQuery({{query.id}})" href="#">Reload</a>
+      <a href="/sql_dashboards/query/edit/{{query.id}}">Edit</a> | 
+      <a onclick="reloadQuery({{query.id}})" href="#" onclick="reloadQuery({{query.id}})">Reload</a> |
+      <a href="/sql_dashboards/dashboard/{{dashboard.id}}/delete_query/{{query.id}}">Delete</a>
         <div id="id_query_{{query.id}}" class="highlight">
           {{query.toHighcharts}}
         </div>
@@ -70,11 +75,12 @@
     </li>
     {% endfor %}
     <li class="ui-state-default col-lg-{{dashboard.getColumnSize}}" style="floaf:left;">
-      <div class="highlight text-center" style="padding:20px">
-        <button class="btn btn-primary submit" style="margin-right:10px"><span style="font-size: 48px;" class="glyphicon glyphicon-file"></span></button>
-        <button class="btn btn-primary submit" style="margin-right:10px"><span style="font-size: 48px;" class="glyphicon glyphicon-comment"></span></button>
-        <button class="btn btn-primary submit"><span style="font-size: 48px;" class="glyphicon glyphicon-picture"></span></button>
-      </div>
+      <form action="{{request.path}}" method="post">{% csrf_token %}
+      {% bootstrap_form form %}
+      {% buttons %}
+          <button type="submit" name="add" class="btn btn-primary">Add</button>
+        {% endbuttons %}
+      </form>
     </li>
   </ul>
 </div>

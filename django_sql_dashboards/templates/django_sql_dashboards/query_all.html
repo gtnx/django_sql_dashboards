@@ -1,9 +1,16 @@
-{% if queries %}
+{% if query_filter %}
 <h3><a href="/sql_dashboards/query/">Queries</a> (<a href="/sql_dashboards/query/add">Add</a>)</h3>
-<table class="table table-condensed">
-  <tr><th>Query</th></tr>
-  {% for query in queries %}
-  <tr><td><a href="/sql_dashboards/query/edit/{{query.id}}">{{query}}</a></td></tr>
+<div class="col-lg-6">
+  <table class="table table-condensed">
+    <tr><th>Title</th><th>Db</th></tr>
+  {% for obj in query_filter %}
+    <tr><td><a href="/sql_dashboards/query/edit/{{obj.id}}">{{obj.title}}</a></td><td>{{obj.db}}</td></tr>
   {% endfor %}
-</table>
+  </table>
+</div>
+<div class="col-lg-2">
+  {{ query_filter.form.as_p }}
+</div>
+{% else %}
+<h3><a href="/sql_dashboards/query">Voir toutes les queries</a></h3>
 {% endif %}
