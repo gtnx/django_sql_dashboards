@@ -68,7 +68,8 @@ class Query(models.Model):
 class Dashboard(models.Model):
   title = models.CharField(max_length = 255, blank = True)
   column_nb = models.IntegerField(choices = ((1, 1), (2, 2), (3, 3), (4, 4), (6, 6)))
-
+  creator = models.ForeignKey(User)
+  
   def __unicode__(self):
     return self.title
 
