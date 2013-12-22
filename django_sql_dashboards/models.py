@@ -41,7 +41,7 @@ class Query(models.Model):
 
   public = models.BooleanField(default = True)
 
-  legend_align = models.CharField(max_length = 64, choices = (('top', 'Top'), ('left', 'Left'), ('bottom', 'Bottom'), ('right', 'Right'), ))
+  legend_align = models.CharField(max_length = 64, default = 'right', choices = (('top', 'Top'), ('left', 'Left'), ('bottom', 'Bottom'), ('right', 'Right'), ))
 
   def execute(self):
     return self.db.getDb().hquery(self.query)
