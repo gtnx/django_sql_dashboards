@@ -79,10 +79,14 @@ class Query(models.Model):
 
   def toHighcharts(self):
     id_div = "id_query_%s" % self.id
-    data, headers, obj = self.getAll()
-    if self.type == "table":
-      return loader.get_template('django_sql_dashboards/table.html').render(Context(locals()))
-    return loader.get_template('django_sql_dashboards/highcharts.html').render(Context(locals()))
+    try:
+      data, headers, obj = self.getAll()
+      if self.type == "table":
+        return loader.get_template('django_sql_dashboards/table.html').render(Context(locals()))
+      return loader.get_template('django_sql_dashboards/highcharts.html').render(Context(locals()))
+    except Exception as e:
+      print(str(e))
+      return loader.get_template('django_sql_dashboards/query_error.html').render(Context(locals()))
 
 class Dashboard(models.Model):
   title = models.CharField(max_length = 255, blank = True)
