@@ -17,7 +17,7 @@ def home(request):
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))  
 
 def query_view(request):
-  query_filter = QueryFilter(request.GET, queryset=Query.objects.all())
+  query_filter = QueryFilter(request.GET, queryset=Query.objects.all().select_related("creator", "db"))
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))
 
 def query_delete(request, query_id):
@@ -31,7 +31,7 @@ def query_delete(request, query_id):
   raise Http404
 
 def dashboard_view(request):
-  dashboard_filter = DashboardFilter(request.GET, queryset=Dashboard.objects.all())
+  dashboard_filter = DashboardFilter(request.GET, queryset=Dashboard.objects.all().select_related("creator"))
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))
 
 def query_editor(request, query_id = None):
