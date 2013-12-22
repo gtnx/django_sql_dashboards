@@ -15,7 +15,8 @@ setup(
        "MySQL-python",
        "South",
        "django-filter",
-       "django-picklefield"
+       "django-picklefield",
+       "python-dateutil"
     ],
     packages = find_packages(),
     include_package_data=True,

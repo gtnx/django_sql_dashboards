@@ -1,5 +1,6 @@
 import pickle
 import datetime
+from dateutil import tz
 
 from django.db import models
 from django.template import Context, loader
@@ -53,7 +54,7 @@ class Query(models.Model):
     if cached:
       history = QueryHistory.objects.filter(query = self).order_by("-ts_update")[:1]
       if len(history):
-        if (datetime.datetime.now() - history[0].ts_update.replace(tzinfo=None)).seconds <= self.cache_ttl:
+        if (datetime.datetime.now().replace(tzinfo=tz.tzlocal()) - history[0].ts_update).seconds <= self.cache_ttl:
           return pickle.loads(history[0].data)
 
     data = self.db.getDb().hquery(self.query)

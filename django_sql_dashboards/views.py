@@ -118,10 +118,12 @@ def test_query(request):
     response_data["data"] = dict([(cursor.description[i][0], row[i]) for i in range(len(cursor.description))])
     db.close()
   except DatabaseError as e:
+    print(str(e))
     response_data["error"] = str(e)
   except Exception as e:
+    print(str(e))
     response_data["error"] = str(e)
   response = render_to_response("django_sql_dashboards/test_query.html", response_data, RequestContext(request))
-  response.status_code = status = 202 if "error" in response_data else 200
+  response.status_code = status = 200 if "error" in response_data else 200
   return response
 
