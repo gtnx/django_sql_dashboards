@@ -13,7 +13,9 @@ setup(
        "Django==1.5",
        "django-bootstrap3>=2.3.0",
        "MySQL-python",
-       "South"
+       "South",
+       "django-filter",
+       "django-picklefield"
     ],
     packages = find_packages(),
     include_package_data=True,
