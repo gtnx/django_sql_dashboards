@@ -111,10 +111,12 @@ def to_highcharts(request, query_id):
 def test_query(request):
   response_data = {}
   try:
-    cursor = DbConfig.objects.get(id = int(request.GET.get("db"))).getDb().curs
+    db = DbConfig.objects.get(id = int(request.GET.get("db"))).getDb()
+    cursor = db.curs
     cursor.execute("explain %s" % request.GET.get("query",""))
     row = cursor.fetchone()
     response_data["data"] = dict([(cursor.description[i][0], row[i]) for i in range(len(cursor.description))])
+    db.close()
   except DatabaseError as e:
     response_data["error"] = str(e)
   except Exception as e:

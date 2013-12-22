@@ -1,7 +1,11 @@
+import pickle
+import datetime
+
 from django.db import models
 from django.template import Context, loader
 from db import DB
 from django.contrib.auth.models import User
+from picklefield.fields import PickledObjectField
 
 class DbConfig(models.Model):
   name = models.CharField(max_length = 255)
@@ -42,9 +46,21 @@ class Query(models.Model):
   public = models.BooleanField(default = True)
 
   legend_align = models.CharField(max_length = 64, default = 'right', choices = (('top', 'Top'), ('left', 'Left'), ('bottom', 'Bottom'), ('right', 'Right'), ))
+  cache_ttl = models.IntegerField(default = 0, choices = ((0, "No cache"), (60, "1 minute"), (300, "5 minutes"), (3600, "1 hour"), (86400, "1 day"), (7*86400, "1 week")))
 
-  def execute(self):
-    return self.db.getDb().hquery(self.query)
+
+  def execute(self, cached = True):
+    if cached:
+      history = QueryHistory.objects.filter(query = self).order_by("-ts_update")[:1]
+      if len(history):
+        if (datetime.datetime.now() - history[0].ts_update.replace(tzinfo=None)).seconds <= self.cache_ttl:
+          return pickle.loads(history[0].data)
+
+    data = self.db.getDb().hquery(self.query)
+    if data:
+      QueryHistory.objects.filter(query = self).delete()
+      QueryHistory(query = self, data = pickle.dumps(data)).save()
+    return data
 
   def getAll(self):
     data, headers = self.execute()
@@ -89,3 +105,9 @@ class DashboardQuery(models.Model):
 
   class Meta:
     unique_together = ["dashboard", "query"]
+
+class QueryHistory(models.Model):
+  query = models.ForeignKey(Query)
+  data = PickledObjectField()
+  ts_create = models.DateTimeField(auto_now_add = True)
+  ts_update = models.DateTimeField(auto_now_add = True, auto_now = True)
