@@ -12,5 +12,9 @@ class QueryAdmin(admin.ModelAdmin):
 admin.site.register(Query, QueryAdmin)
 
 class DashboardAdmin(admin.ModelAdmin):
-    pass
+  exclude = ["creator"]
+  list_display = ["title", "creator"]
+  def save_model(self, request, obj, form, change):
+    obj.creator = request.user
+    obj.save()
 admin.site.register(Dashboard, DashboardAdmin)

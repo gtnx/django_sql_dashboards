@@ -1,11 +1,12 @@
 from django.views.generic.list import ListView
 from django.http import *
 from django.shortcuts import render_to_response, HttpResponse, HttpResponseRedirect, RequestContext
+from django.contrib.auth.decorators import login_required
 from django.db import connection, DatabaseError
 from django.db.models import Max
 
 from models import Query, Dashboard, DashboardQuery, DbConfig
-from forms import QueryForm, QueryAddForm
+from forms import QueryForm, QueryAddForm, DashboardForm
 from filters import QueryFilter, DashboardFilter
 
 def default(request):
@@ -34,6 +35,7 @@ def dashboard_view(request):
   dashboard_filter = DashboardFilter(request.GET, queryset=Dashboard.objects.all().select_related("creator"))
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))
 
+@login_required
 def query_editor(request, query_id = None):
   form = QueryForm(request.POST) if request.method == 'POST' else QueryForm()
   query = None
@@ -45,17 +47,26 @@ def query_editor(request, query_id = None):
       return HttpResponseRedirect("/sql_dashboards/query/")
   if request.method == "GET" and query_id is not None:
     form = QueryForm(instance = query)
-  elif request.method == "POST" and ("run" in request.POST or "save" in request.POST):
+  elif request.method == "POST" and ("run" in request.POST or "save" in request.POST or "run_save" in request.POST):
     form = QueryForm(request.POST, instance = query) if query else QueryForm(request.POST) 
     if form.is_valid():
-      query = form.save(commit = "save" in request.POST, user = request.user)
+      query = form.save(commit = ("save" in request.POST or "run_save" in request.POST), user = request.user)
 
-  if query:
-    data, headers, obj = query.getAll()
+    if query and ("run" in request.POST or "run_save" in request.POST):
+      query_executed = True
+      data, headers, obj = query.getAll()
   if request.method == "POST" and "save" in request.POST:
     return HttpResponseRedirect("/sql_dashboards/query/edit/%s" % query.id)
   return render_to_response("django_sql_dashboards/query_editor.html", locals(), RequestContext(request))
 
+def dashboard_create(request):
+  form = DashboardForm(request.POST) if request.method == 'POST' else DashboardForm()
+  if request.method == "POST" and "add" in request.POST:
+    if form.is_valid():
+      dashboard = form.save(commit = True, user = request.user)
+      return HttpResponseRedirect("/sql_dashboards/dashboard/edit/%s" % dashboard.id)
+  return render_to_response("django_sql_dashboards/dashboard_editor.html", locals(), RequestContext(request))
+  
 def dashboard_editor(request, dashboard_id = None):
   dashboard = None
   form = QueryAddForm()
@@ -78,6 +89,7 @@ def dashboard_editor(request, dashboard_id = None):
     except Exception as e:
       print(str(e))
       return HttpResponseRedirect("/sql_dashboards/dashboard")
+  
   return render_to_response("django_sql_dashboards/dashboard_editor.html", locals(), RequestContext(request))
 
 def dashboard_delete_query(request, dashboard_id, query_id):
@@ -111,12 +123,13 @@ def to_highcharts(request, query_id):
 def test_query(request):
   response_data = {}
   try:
-    db = DbConfig.objects.get(id = int(request.GET.get("db"))).getDb()
-    cursor = db.curs
-    cursor.execute("explain %s" % request.GET.get("query",""))
-    row = cursor.fetchone()
-    response_data["data"] = dict([(cursor.description[i][0], row[i]) for i in range(len(cursor.description))])
-    db.close()
+    pass
+    # db = DbConfig.objects.get(id = int(request.GET.get("db"))).getDb()
+    # cursor = db.curs
+    # cursor.execute("explain %s" % request.GET.get("query",""))
+    # row = cursor.fetchone()
+    # response_data["data"] = dict([(cursor.description[i][0], row[i]) for i in range(len(cursor.description))])
+    # db.close()
   except DatabaseError as e:
     print(str(e))
     response_data["error"] = str(e)
@@ -124,6 +137,6 @@ def test_query(request):
     print(str(e))
     response_data["error"] = str(e)
   response = render_to_response("django_sql_dashboards/test_query.html", response_data, RequestContext(request))
-  response.status_code = status = 200 if "error" in response_data else 200
+  response.status_code = status = 202 if "error" in response_data and not request.user.is_superuser else 200
   return response
 

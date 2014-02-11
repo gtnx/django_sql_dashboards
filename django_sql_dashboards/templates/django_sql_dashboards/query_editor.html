@@ -4,9 +4,6 @@
 {% endblock %}
 {% block body %}
 {% load bootstrap3 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
 
 <script type="text/javascript" src="/sql_dashboards/static/prism.js"></script>
 <link href="/sql_dashboards/static/prism.css" rel="stylesheet">
@@ -17,13 +14,17 @@
     <div class="col-lg-4">
       <form action="{{request.path}}" method="post">{% csrf_token %}
         {% buttons %}
-          <button type="submit" name="run" class="btn btn-primary" style="display:none;">Run</button>&nbsp
-          <button type="submit" name="save" class="btn btn-primary" style="display:none;">Save</button>
+          <button type="submit" name="run" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run</button>&nbsp
+          <button type="submit" name="save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Save</button>&nbsp
+          <button type="submit" name="run_save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run & Save</button>&nbsp
+          <a href="/sql_dashboards/query/add" class="btn btn-success">+ Add</a>
         {% endbuttons %}
         {% bootstrap_form form %}
         {% buttons %}
-          <button type="submit" name="run" class="btn btn-primary" style="display:none;">Run</button>&nbsp
-          <button type="submit" name="save" class="btn btn-primary" style="display:none;">Save</button>
+          <button type="submit" name="run" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run</button>&nbsp
+          <button type="submit" name="save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Save</button>&nbsp
+          <button type="submit" name="run_save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run & Save</button>&nbsp
+          <a href="/sql_dashboards/query/add" class="btn btn-success">+ Add</a>
         {% endbuttons %}
       </form>
       <div class="row">
@@ -42,6 +43,10 @@
         <div class="tab-pane active" id="id_query_{{query.id}}">
           {% if obj %}
           {{query.toHighcharts}}
+          {% elif query_executed %}
+          <br><p><span class="label label-danger">Impossible to load query</span></p>
+          {% else %}
+          <br><p><span class="label label-default">Press run to execute the query</span></p>
           {% endif %}
         </div>
         <!-- <div id="my_chart" class="row"></div> -->

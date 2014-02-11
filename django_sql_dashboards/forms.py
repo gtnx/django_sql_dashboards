@@ -1,5 +1,5 @@
 from django import forms
-from models import Query
+from models import Query, Dashboard
 
 class QueryForm(forms.ModelForm):
   class Meta:
@@ -16,3 +16,15 @@ class QueryForm(forms.ModelForm):
 
 class QueryAddForm(forms.Form):
   query = forms.ModelChoiceField(queryset = Query.objects.all())
+
+class DashboardForm(forms.ModelForm):
+  class Meta:
+    model = Dashboard
+    exclude = ["creator"]
+
+  def save(self, user, *args, **kwargs):
+    inst = super(DashboardForm, self).save(commit = False)
+    inst.creator = user
+    if kwargs.get("commit", False):
+      inst.save()
+    return inst

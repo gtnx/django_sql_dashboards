@@ -1,5 +1,15 @@
+<style>
+.listing ul{
+  list-style-type: circle;
+  padding:0 0 0 10;
+  font-size: 12px;
+}
+.listing .selected {
+  font-weight: bold;
+}
+</style>
 {% if query_filter %}
-<h3><a href="/sql_dashboards/query/">Queries</a> (<a href="/sql_dashboards/query/add">Add</a>)</h3>
+<h3><a href="/sql_dashboards/query/">Queries</a> <a class="btn btn-success btn-sm" href="/sql_dashboards/query/add"><span class="glyphicon glyphicon-plus"></span> Add</a></h3>
 <div class="col-lg-8">
   <table class="table table-condensed">
     <tr><th>Title</th><th>Creator</th><th>Db</th><th>Action</th></tr>
@@ -8,12 +18,12 @@
       <td><a href="/sql_dashboards/query/edit/{{obj.id}}">{{obj.title}}</a></td>
       <td>{{obj.creator}}</td>
       <td>{{obj.db}}</td>
-      <td><a href="/sql_dashboards/query/delete/{{obj.id}}" onclick="return confirm('Sure you want to delete {{obj.title|escapejs}}?')">Delete</a></td>
+      <td><a class="btn btn-danger btn-sm" href="/sql_dashboards/query/delete/{{obj.id}}" onclick="return confirm('Sure you want to delete {{obj.title|escapejs}}?')">Delete</a></td>
     </tr>
   {% endfor %}
   </table>
 </div>
-<div class="col-lg-2">
+<div class="col-lg-2 well listing" style="overflow: hidden;">
   {{ query_filter.form.as_p }}
 </div>
 {% else %}

@@ -1,47 +1,52 @@
 <script type="text/javascript">
-    $(function () {
-        $('#{{id_div}}').highcharts({
-            chart: {
-                type: '{{obj.type}}',
-                zoomType:'xy'
-            },
-            title: {
-                text: '{{obj.title|escapejs}}',
-            },
-            subtitle: {
-                text: '{{obj.subtitle|escapejs}}',
-            },
-            xAxis: {
-                categories: [{% for category in obj.categories %}'{{category|escapejs}}',{% endfor %}],
+    try {
+        $(function () {
+            $('#{{id_div}}').highcharts({
+                chart: {
+                    type: '{{obj.type}}',
+                    zoomType:'xy'
+                },
                 title: {
+                    text: '{{obj.title|escapejs}}',
+                },
+                subtitle: {
+                    text: '{{obj.subtitle|escapejs}}',
+                },
+                xAxis: {
+                    categories: [{% for category in obj.categories %}'{{category|escapejs}}',{% endfor %}],
+                    title: {
+                        enabled: true,
+                        text: '{{obj.xlegend}}'
+                    },
+                },
+                yAxis: {
+                    title: {
+                        text: '{{obj.ylegend}}',
+                    },
+                },
+                exporting: {
                     enabled: true,
-                    text: '{{obj.xlegend}}'
+                    type: "image/png",
+                    filename: "{{obj.title|escapejs}}",
                 },
-            },
-            yAxis: {
-                title: {
-                    text: '{{obj.ylegend}}',
+                legend: {
+                    layout: 'vertical',
+                    align: {% if obj.legend_align == "left" or obj.legend_align == "right" %}'{{obj.legend_align}}'{% else %}'center'{% endif %},
+                    verticalAlign: {% if obj.legend_align == "top" or obj.legend_align == "bottom" %}'{{obj.legend_align}}'{% else %}'middle'{% endif %},
+                    borderWidth: 0
                 },
-            },
-            exporting: {
-                enabled: true,
-                type: "image/png",
-                filename: "{{obj.title|escapejs}}",
-            },
-            legend: {
-                layout: 'vertical',
-                align: {% if obj.legend_align == "left" or obj.legend_align == "right" %}'{{obj.legend_align}}'{% else %}'center'{% endif %},
-                verticalAlign: {% if obj.legend_align == "top" or obj.legend_align == "bottom" %}'{{obj.legend_align}}'{% else %}'middle'{% endif %},
-                borderWidth: 0
-            },
-            series: [
-            {% for serie in obj.series %}
-            {
-                name: '{{serie.name|escapejs}}',
-                data: [{% for y in serie.data %}{{y|floatformat:3}},{% endfor %}]
-            },
-            {% endfor %}
-            ],
+                series: [
+                {% for serie in obj.series %}
+                {
+                    name: '{{serie.name|escapejs}}',
+                    data: [{% for y in serie.data %}{{y|floatformat:3}},{% endfor %}]
+                },
+                {% endfor %}
+                ],
+            });
         });
-    });
+    }
+    catch (e) {
+        console.log(e);
+    }
 </script>

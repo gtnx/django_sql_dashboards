@@ -11,7 +11,7 @@ urlpatterns = patterns('',
     
 
   url(r'^dashboard/?$', 'django_sql_dashboards.views.dashboard_view', name='dashboard_all'),
-  url(r'^dashboard/add/?$', 'django_sql_dashboards.views.dashboard_editor', name='dashboard_editor'),
+  url(r'^dashboard/add/?$', 'django_sql_dashboards.views.dashboard_create', name='dashboard_editor'),
   url(r'^dashboard/edit/(\d+)$', 'django_sql_dashboards.views.dashboard_editor', name='dashboard_editor'),
   url(r'^dashboard/(\d+)/delete_query/(\d+)$', 'django_sql_dashboards.views.dashboard_delete_query', name='dashboard_delete_query'),
   url(r'^dashboard/(\d+)/change_order$', 'django_sql_dashboards.views.dashboard_editor_change_order', name='dashboard_editor_change_order'),

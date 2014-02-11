@@ -1,5 +1,7 @@
 import pickle
 import datetime
+import logging
+import decimal
 from dateutil import tz
 
 from django.db import models
@@ -7,6 +9,8 @@ from django.template import Context, loader
 from db import DB
 from django.contrib.auth.models import User
 from picklefield.fields import PickledObjectField
+
+logger = logging.getLogger("sql-dashboards")
 
 class DbConfig(models.Model):
   name = models.CharField(max_length = 255)
@@ -22,7 +26,8 @@ class DbConfig(models.Model):
     ordering = ["name"]
 
   def getDb(self):
-    return DB(host = self.host, user = self.user, passwd = self.passwd, db = self.db)
+    return DB(host = self.host, user = self.user, \
+              passwd = self.passwd, db = self.db)
 
   def __unicode__(self):
     return "%s (%s@%s:%s)" % (self.name, self.user, self.host, self.db)
@@ -57,14 +62,22 @@ class Query(models.Model):
         if (datetime.datetime.now().replace(tzinfo=tz.tzlocal()) - history[0].ts_update).seconds <= self.cache_ttl:
           return pickle.loads(history[0].data)
 
-    data = self.db.getDb().hquery(self.query)
-    if data:
-      QueryHistory.objects.filter(query = self).delete()
-      QueryHistory(query = self, data = pickle.dumps(data)).save()
+    try:
+      data = self.db.getDb().hquery(self.query)
+      if data:
+        if self.id:
+          QueryHistory.objects.filter(query = self).delete()
+          QueryHistory(query = self, data = pickle.dumps(data)).save()
+    except Exception as e:
+      logger.error(str(e))
+      return None
     return data
 
   def getAll(self):
-    data, headers = self.execute()
+    ret = self.execute()
+    if not ret:
+      return None, None, None
+    data, headers = ret
     obj = {"title": self.title,
            "subtitle": self.subtitle,
            "xlegend": self.xlegend,
@@ -84,9 +97,13 @@ class Query(models.Model):
       data, headers, obj = self.getAll()
       if self.type == "table":
         return loader.get_template('django_sql_dashboards/table.html').render(Context(locals()))
+      for serie in obj["series"]:
+        for x in serie["data"]:
+          if not isinstance(x, long) and not isinstance(x, decimal.Decimal) and not isinstance(x, float):
+            raise Exception("Not properly formatted. Maybe null fields ?")
       return loader.get_template('django_sql_dashboards/highcharts.html').render(Context(locals()))
     except Exception as e:
-      print(str(e))
+      logger.error(str(e))
       return loader.get_template('django_sql_dashboards/query_error.html').render(Context(locals()))
 
 class Dashboard(models.Model):

@@ -10,7 +10,7 @@ class QueryFilter(django_filters.FilterSet):
     fields = ['creator', 'db']
 
 class DashboardFilter(django_filters.FilterSet):
-  # db = django_filters.ModelChoiceFilter(queryset = DbConfig.objects.all(), widget = django_filters.widgets.LinkWidget)
+  creator = django_filters.ModelChoiceFilter(queryset = User.objects.exclude(query = None), widget = django_filters.widgets.LinkWidget)
   class Meta:
     model = Dashboard
-    fields = []
+    fields = ['creator']
