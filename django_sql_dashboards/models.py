@@ -106,6 +106,13 @@ class Query(models.Model):
       logger.error(str(e))
       return loader.get_template('django_sql_dashboards/query_error.html').render(Context(locals()))
 
+  def toD3(self):
+    id_div = "id_query_%s" % self.id
+    data, headers, obj = self.getAll()
+    if self.type == "table":
+      return loader.get_template('django_sql_dashboards/table.html').render(Context(locals()))
+    return loader.get_template('django_sql_dashboards/d3.html').render(Context(locals()))
+
 class Dashboard(models.Model):
   title = models.CharField(max_length = 255, blank = True)
   column_nb = models.IntegerField(choices = ((1, 1), (2, 2), (3, 3), (4, 4), (6, 6)))
