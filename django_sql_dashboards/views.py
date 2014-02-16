@@ -3,7 +3,7 @@ from django.http import *
 from django.shortcuts import render_to_response, HttpResponse, HttpResponseRedirect, RequestContext
 from django.contrib.auth.decorators import login_required
 from django.db import connection, DatabaseError
-from django.db.models import Max
+from django.db.models import Max, Q
 
 from models import Query, Dashboard, DashboardQuery, DbConfig
 from forms import QueryForm, QueryAddForm, DashboardForm
@@ -17,10 +17,12 @@ def home(request):
   dashboards = Dashboard.objects.all
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))  
 
+@login_required
 def query_view(request):
-  query_filter = QueryFilter(request.GET, queryset=Query.objects.all().select_related("creator", "db"))
+  query_filter = QueryFilter(request.GET, queryset=Query.objects.filter(Q(public = True) | Q(creator = request.user)).select_related("creator", "db"))
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))
 
+@login_required
 def query_delete(request, query_id):
   try:
     query = Query.objects.get(id = query_id)
@@ -31,6 +33,7 @@ def query_delete(request, query_id):
     print(str(e))
   raise Http404
 
+@login_required
 def dashboard_view(request):
   dashboard_filter = DashboardFilter(request.GET, queryset=Dashboard.objects.all().select_related("creator"))
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))
@@ -55,10 +58,11 @@ def query_editor(request, query_id = None):
     if query and ("run" in request.POST or "run_save" in request.POST):
       query_executed = True
       data, headers, obj = query.getAll()
-  if request.method == "POST" and "save" in request.POST:
+  if request.method == "POST" and ("save" in request.POST or "run_save" in request.POST):
     return HttpResponseRedirect("/sql_dashboards/query/edit/%s" % query.id)
   return render_to_response("django_sql_dashboards/query_editor.html", locals(), RequestContext(request))
 
+@login_required
 def dashboard_create(request):
   form = DashboardForm(request.POST) if request.method == 'POST' else DashboardForm()
   if request.method == "POST" and "add" in request.POST:
@@ -66,7 +70,19 @@ def dashboard_create(request):
       dashboard = form.save(commit = True, user = request.user)
       return HttpResponseRedirect("/sql_dashboards/dashboard/edit/%s" % dashboard.id)
   return render_to_response("django_sql_dashboards/dashboard_editor.html", locals(), RequestContext(request))
-  
+
+@login_required
+def dashboard_delete(request, dashboard_id):
+  try:
+    dashboard = Dashboard.objects.get(id = dashboard_id)
+    if dashboard.creator == request.user:
+      dashboard.delete()
+      return HttpResponseRedirect("/sql_dashboards/dashboard")
+  except Exception as e:
+    print(str(e))
+  raise Http404
+
+@login_required
 def dashboard_editor(request, dashboard_id = None):
   dashboard = None
   form = QueryAddForm()
@@ -92,6 +108,7 @@ def dashboard_editor(request, dashboard_id = None):
   
   return render_to_response("django_sql_dashboards/dashboard_editor.html", locals(), RequestContext(request))
 
+@login_required
 def dashboard_delete_query(request, dashboard_id, query_id):
   try:
     dashboard = Dashboard.objects.get(id = dashboard_id)
@@ -101,6 +118,7 @@ def dashboard_delete_query(request, dashboard_id, query_id):
     print(str(e))
   return HttpResponseRedirect("/sql_dashboards/dashboard/edit/%s" % dashboard_id)
 
+@login_required
 def dashboard_editor_change_order(request, dashboard_id = None):
   dashboard = None
   if dashboard_id:
@@ -114,12 +132,14 @@ def dashboard_editor_change_order(request, dashboard_id = None):
       print(str(e))
   return HttpResponse("")
 
+@login_required
 def to_highcharts(request, query_id):
   try:
     return HttpResponse(Query.objects.get(id = query_id).toHighcharts())
   except Exception as e:
     return HttpResponse(str(e), status = 202)
 
+@login_required
 def test_query(request):
   response_data = {}
   try:

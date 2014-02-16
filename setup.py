@@ -16,7 +16,9 @@ setup(
        "South",
        "django-filter",
        "django-picklefield",
-       "python-dateutil"
+       "python-dateutil",
+       "django-pagination"
+
     ],
     packages = find_packages(),
     include_package_data=True,

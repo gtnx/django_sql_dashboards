@@ -20,7 +20,7 @@
     }
     #sortable { list-style-type: none; margin: 0; padding: 0; }
   </style>
-  <script src="/sql_dashboards/static/jquery-ui.js"></script>
+  <script src="{{SQL_DASHBOARDS_PREFIX}}/static/jquery-ui.js"></script>
   <script>
   var getWidgetIds = function () {
     var dashboard_widget_ids = [];
@@ -34,7 +34,7 @@
       revert: true,
       update:function(event, ui) {
         $.ajax({
-          url:"/sql_dashboards/dashboard/{{dashboard.id}}/change_order?order=" + getWidgetIds().join(","),
+          url:"{{SQL_DASHBOARDS_PREFIX}}/dashboard/{{dashboard.id}}/change_order?order=" + getWidgetIds().join(","),
         });
       }
     });
@@ -45,7 +45,7 @@
   {
     $("#id_query_" + query_id).hide();
     $.ajax({
-      url:"/sql_dashboards/query/to_highcharts/" + query_id,
+      url:"{{SQL_DASHBOARDS_PREFIX}}/query/to_highcharts/" + query_id,
       statusCode:{
         200:function(data) {
           $("#id_query_" + query_id).show();
@@ -62,13 +62,14 @@
  
 <div class="container">
   {% if dashboard_id %}
+  <h1>{{dashboard.title}}</h1>
   <ul id="sortable" class="col-lg-12">
     {% for query in dashboard.queries %}
     <li id="widget_{{query.id}}" class="ui-state-default col-lg-{{dashboard.getColumnSize}}" style="floaf:left;">
       <div class="highlight text-left">
-      <a href="/sql_dashboards/query/edit/{{query.id}}">Edit</a> | 
+      <a href="{{SQL_DASHBOARDS_PREFIX}}/query/edit/{{query.id}}">Edit</a> | 
       <a onclick="reloadQuery({{query.id}})" href="#" onclick="reloadQuery({{query.id}})">Reload</a> |
-      {% if request.user == dashboard.creator %}<a href="/sql_dashboards/dashboard/{{dashboard.id}}/delete_query/{{query.id}}">Delete</a>{% endif %}
+      {% if request.user == dashboard.creator %}<a href="{{SQL_DASHBOARDS_PREFIX}}/dashboard/{{dashboard.id}}/delete_query/{{query.id}}">Delete</a>{% endif %}
         <div id="id_query_{{query.id}}" class="highlight">
           {{query.toHighcharts}}
         </div>

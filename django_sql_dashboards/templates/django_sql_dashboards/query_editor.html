@@ -5,8 +5,8 @@
 {% block body %}
 {% load bootstrap3 %}
 
-<script type="text/javascript" src="/sql_dashboards/static/prism.js"></script>
-<link href="/sql_dashboards/static/prism.css" rel="stylesheet">
+<script type="text/javascript" src="{{SQL_DASHBOARDS_PREFIX}}/static/prism.js"></script>
+<link href="{{SQL_DASHBOARDS_PREFIX}}/static/prism.css" rel="stylesheet">
 
 <div class="container">
   <!-- <h1>Test prism</h1> -->
@@ -17,14 +17,14 @@
           <button type="submit" name="run" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run</button>&nbsp
           <button type="submit" name="save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Save</button>&nbsp
           <button type="submit" name="run_save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run & Save</button>&nbsp
-          <a href="/sql_dashboards/query/add" class="btn btn-success">+ Add</a>
+          <a href="{{SQL_DASHBOARDS_PREFIX}}/query/add" class="btn btn-success">+ Add</a>
         {% endbuttons %}
         {% bootstrap_form form %}
         {% buttons %}
           <button type="submit" name="run" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run</button>&nbsp
           <button type="submit" name="save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Save</button>&nbsp
           <button type="submit" name="run_save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run & Save</button>&nbsp
-          <a href="/sql_dashboards/query/add" class="btn btn-success">+ Add</a>
+          <a href="{{SQL_DASHBOARDS_PREFIX}}/query/add" class="btn btn-success">+ Add</a>
         {% endbuttons %}
       </form>
       <div class="row">
@@ -73,7 +73,7 @@
       $("#id_query_pre code").html(sql_query);
       Prism.highlightAll();
       $.ajax({
-        url: "/sql_dashboards/test_query?db=" + $("#id_db :selected")[0].value + "&query=" + encodeURIComponent(sql_query),
+        url: "{{SQL_DASHBOARDS_PREFIX}}/test_query?db=" + $("#id_db :selected")[0].value + "&query=" + encodeURIComponent(sql_query),
         statusCode:{
           200:function(data) {
             $("button[name='run']").show();

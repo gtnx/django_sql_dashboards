@@ -8,22 +8,27 @@
   font-weight: bold;
 }
 </style>
+{% load pagination_tags %}
+
 {% if dashboard_filter %}
-<h3><a href="/sql_dashboards/dashboard/">Dashboard</a> <a class="btn btn-success btn-sm" href="/sql_dashboards/dashboard/add"><span class="glyphicon glyphicon-plus"></span> Add</a></h3>
+{% autopaginate dashboard_filter.qs 10 as filter_list %}
+<h3><a href="{{SQL_DASHBOARDS_PREFIX}}/dashboard/">Dashboard</a> <a class="btn btn-success btn-sm" href="{{SQL_DASHBOARDS_PREFIX}}/dashboard/add"><span class="glyphicon glyphicon-plus"></span> Add</a></h3>
 <div class="col-lg-8">
   <table class="table table-condensed">
-    <tr><th>Title</th><th>Creator</th></tr>
-  {% for obj in dashboard_filter %}
+    <tr><th>Title</th><th>Creator</th><th>Action</th></tr>
+  {% for obj in filter_list %}
     <tr>
-      <td><a href="/sql_dashboards/dashboard/edit/{{obj.id}}">{{obj.title}}</a></td>
+      <td><a href="{{SQL_DASHBOARDS_PREFIX}}/dashboard/edit/{{obj.id}}">{{obj.title}}</a></td>
       <td>{{obj.creator}}</td>
+      <td><a class="btn btn-danger btn-xs" href="{{SQL_DASHBOARDS_PREFIX}}/dashboard/delete/{{obj.id}}" onclick="return confirm('Sure you want to delete {{obj.title|escapejs}}?')"><span class="glyphicon glyphicon-minus"></span> Delete</a></td>
     </tr>
   {% endfor %}
   </table>
+  {% paginate %}
 </div>
 <div class="col-lg-2 well listing">
   {{ dashboard_filter.form.as_p }}
 </div>
 {% else %}
-<h3><a href="/sql_dashboards/dashboard">Voir toutes les dashboards</a></h3>
+<h3><a href="{{SQL_DASHBOARDS_PREFIX}}/dashboard">Voir toutes les dashboards</a></h3>
 {% endif %}
