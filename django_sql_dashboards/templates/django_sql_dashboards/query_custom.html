@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}
+{{obj.title}}
+{% endblock %}
+{% block body %}
+
+<script type="text/javascript" src="{{SQL_DASHBOARDS_PREFIX}}/static/prism.js"></script>
+<link href="{{SQL_DASHBOARDS_PREFIX}}/static/prism.css" rel="stylesheet">
+
+<div class="container">
+  <h2>{{query.title}}</h2>
+  <pre id="id_query_pre"><code class="language-sql">{{query.query}}</code></pre>
+  {% load crispy_forms_tags %}
+  {% crispy form %}
+</div>
+
+{% endblock %}

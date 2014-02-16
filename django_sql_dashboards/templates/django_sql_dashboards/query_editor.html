@@ -3,7 +3,6 @@
 {{obj.title}}
 {% endblock %}
 {% block body %}
-{% load bootstrap3 %}
 
 <script type="text/javascript" src="{{SQL_DASHBOARDS_PREFIX}}/static/prism.js"></script>
 <link href="{{SQL_DASHBOARDS_PREFIX}}/static/prism.css" rel="stylesheet">
@@ -12,21 +11,8 @@
   <!-- <h1>Test prism</h1> -->
   <div class="row">
     <div class="col-lg-4">
-      <form action="{{request.path}}" method="post">{% csrf_token %}
-        {% buttons %}
-          <button type="submit" name="run" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run</button>&nbsp
-          <button type="submit" name="save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Save</button>&nbsp
-          <button type="submit" name="run_save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run & Save</button>&nbsp
-          <a href="{{SQL_DASHBOARDS_PREFIX}}/query/add" class="btn btn-success">+ Add</a>
-        {% endbuttons %}
-        {% bootstrap_form form %}
-        {% buttons %}
-          <button type="submit" name="run" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run</button>&nbsp
-          <button type="submit" name="save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Save</button>&nbsp
-          <button type="submit" name="run_save" class="btn btn-primary" {% if not request.user.is_superuser %}style="display:none;"{% endif %}>Run & Save</button>&nbsp
-          <a href="{{SQL_DASHBOARDS_PREFIX}}/query/add" class="btn btn-success">+ Add</a>
-        {% endbuttons %}
-      </form>
+      {% load crispy_forms_tags %}
+      {% crispy form %}
       <div class="row">
         <div id="query_status" class="col-lg-6"></div>
       </div>
@@ -41,7 +27,7 @@
 
       <div class="tab-content">
         <div class="tab-pane active" id="id_query_{{query.id}}">
-          {% if obj %}
+          {% if query.obj %}
           {{query.toHighcharts}}
           {% elif query_executed %}
           <br><p><span class="label label-danger">Impossible to load query</span></p>
@@ -96,6 +82,7 @@
   }
   $(document).ready(function() {
     parse_pre();
+    $(".collapse").collapse('hide');
   });
 </script>
 {% endblock %}

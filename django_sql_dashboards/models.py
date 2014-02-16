@@ -54,8 +54,13 @@ class Query(models.Model):
   legend_align = models.CharField(max_length = 64, default = 'right', choices = (('top', 'Top'), ('left', 'Left'), ('bottom', 'Bottom'), ('right', 'Right'), ))
   cache_ttl = models.IntegerField(default = 0, choices = ((0, "No cache"), (60, "1 minute"), (300, "5 minutes"), (3600, "1 hour"), (86400, "1 day"), (7*86400, "1 week")))
 
+  custom = models.BooleanField(default = False)
 
-  def execute(self, cached = True):
+  def __init__(self, *args, **kwargs):
+    super(Query, self).__init__(*args, **kwargs)
+    self.data, self.headers, self.obj = None, None, None
+
+  def execute(self, custom_data = None, cached = True):
     if cached:
       history = QueryHistory.objects.filter(query = self).order_by("-ts_update")[:1]
       if len(history):
@@ -63,7 +68,10 @@ class Query(models.Model):
           return pickle.loads(history[0].data)
 
     try:
-      data = self.db.getDb().hquery(self.query)
+      if self.custom:
+        data = self.db.getDb().hquery(self.query % custom_data)
+      else:
+        data = self.db.getDb().hquery(self.query)
       if data:
         if self.id:
           QueryHistory.objects.filter(query = self).delete()
@@ -73,20 +81,18 @@ class Query(models.Model):
       return None
     return data
 
-  def getAll(self):
-    ret = self.execute()
-    if not ret:
-      return None, None, None
-    data, headers = ret
-    obj = {"title": self.title,
-           "subtitle": self.subtitle,
-           "xlegend": self.xlegend,
-           "ylegend": self.ylegend,
-           "type": self.type,
-           "legend_align": self.legend_align}
-    obj["categories"] = [i[0] for i in data]
-    obj["series"] = [{"name": headers[i], "data": [row[i] for row in data]} for i in range(1, len(headers))]
-    return data, headers, obj
+  def getAll(self, custom_data = None):
+    ret = self.execute(custom_data = custom_data)
+    if ret:
+      self.data, self.headers = ret
+      self.obj = {"title": self.title,
+                  "subtitle": self.subtitle,
+                  "xlegend": self.xlegend,
+                  "ylegend": self.ylegend,
+                  "type": self.type,
+                  "legend_align": self.legend_align}
+      self.obj["categories"] = [i[0] for i in self.data]
+      self.obj["series"] = [{"name": self.headers[i], "data": [row[i] for row in self.data]} for i in range(1, len(self.headers))]
 
   def __unicode__(self):
     return self.title
@@ -94,7 +100,7 @@ class Query(models.Model):
   def toHighcharts(self):
     id_div = "id_query_%s" % self.id
     try:
-      data, headers, obj = self.getAll()
+      data, headers, obj = self.data, self.headers, self.obj
       if self.type == "table":
         return loader.get_template('django_sql_dashboards/table.html').render(Context(locals()))
       for serie in obj["series"]:
@@ -111,14 +117,18 @@ class Dashboard(models.Model):
   column_nb = models.IntegerField(choices = ((1, 1), (2, 2), (3, 3), (4, 4), (6, 6)))
   creator = models.ForeignKey(User)
 
+  def __init__(self, *args, **kwargs):
+    super(Dashboard, self).__init__(*args, **kwargs)
+    self.queries = None
+    
   def __unicode__(self):
     return self.title
 
   def getColumnSize(self):
     return 12/self.column_nb
 
-  def queries(self):
-    return [i.query for i in self.dashboardquery_set.all().order_by("order_id")]
+  def getQueries(self):
+    self.queries = [i.query for i in self.dashboardquery_set.all().order_by("order_id")]
 
 class DashboardQuery(models.Model):
   dashboard = models.ForeignKey(Dashboard)

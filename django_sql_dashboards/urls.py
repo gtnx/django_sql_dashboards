@@ -7,6 +7,7 @@ urlpatterns = patterns('',
   url(r'^query/add/?$', 'django_sql_dashboards.views.query_editor', name='query_editor'),
   url(r'^query/delete/(\d+)$', 'django_sql_dashboards.views.query_delete', name='query_delete'),
   url(r'^query/edit/(\d+)$', 'django_sql_dashboards.views.query_editor', name='query_editor'),
+  url(r'^query/custom/(\d+)$', 'django_sql_dashboards.views.query_custom', name='query_custom'),
   url(r'^query/to_highcharts/(\d+)?$', 'django_sql_dashboards.views.to_highcharts', name='to_highcharts'),
     
 

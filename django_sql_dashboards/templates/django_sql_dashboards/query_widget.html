@@ -1,0 +1,8 @@
+<div class="highlight text-left">
+  <a href="{{SQL_DASHBOARDS_PREFIX}}/query/edit/{{query.id}}">Edit</a> | 
+  <a onclick="reloadQuery({{query.id}})" href="#" onclick="reloadQuery({{query.id}})">Reload</a> |
+  {% if request.user == dashboard.creator %}<a href="{{SQL_DASHBOARDS_PREFIX}}/dashboard/{{dashboard.id}}/delete_query/{{query.id}}">Delete</a>{% endif %}
+  <div id="id_query_{{query.id}}" class="highlight">
+    {{query.toHighcharts}}
+  </div>
+</div>
