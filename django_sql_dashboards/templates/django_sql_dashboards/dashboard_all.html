@@ -10,10 +10,10 @@
 </style>
 {% load pagination_tags %}
 
+<h3><a href="{{SQL_DASHBOARDS_PREFIX}}/dashboard/">Dashboard</a> <a class="btn btn-success btn-sm" href="{{SQL_DASHBOARDS_PREFIX}}/dashboard/add"><span class="glyphicon glyphicon-plus"></span> Add</a></h3>
 {% if dashboard_filter %}
 {% autopaginate dashboard_filter.qs 10 as filter_list %}
-<h3><a href="{{SQL_DASHBOARDS_PREFIX}}/dashboard/">Dashboard</a> <a class="btn btn-success btn-sm" href="{{SQL_DASHBOARDS_PREFIX}}/dashboard/add"><span class="glyphicon glyphicon-plus"></span> Add</a></h3>
-<div class="col-lg-8">
+<div class="col-lg-8 span8">
   <table class="table table-condensed">
     <tr><th>Title</th><th>Creator</th><th>Action</th></tr>
   {% for obj in filter_list %}
@@ -26,9 +26,7 @@
   </table>
   {% paginate %}
 </div>
-<div class="col-lg-2 well listing">
+<div class="col-lg-2 span2 well listing">
   {{ dashboard_filter.form.as_p }}
 </div>
-{% else %}
-<h3><a href="{{SQL_DASHBOARDS_PREFIX}}/dashboard">Voir toutes les dashboards</a></h3>
 {% endif %}

@@ -13,7 +13,7 @@ from picklefield.fields import PickledObjectField
 logger = logging.getLogger("sql-dashboards")
 
 class DbConfig(models.Model):
-  name = models.CharField(max_length = 255)
+  name = models.CharField(max_length = 255, primary_key = True)
   host = models.CharField(max_length = 255)
   user = models.CharField(max_length = 255)
   passwd = models.CharField(max_length = 255)

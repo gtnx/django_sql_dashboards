@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}
-{{obj.title}}
+Query Editor - {{query.title}}
 {% endblock %}
 {% block body %}
 
@@ -10,15 +10,15 @@
 <div class="container">
   <!-- <h1>Test prism</h1> -->
   <div class="row">
-    <div class="col-lg-4">
+    <div class="col-lg-4 span4">
       {% load crispy_forms_tags %}
       {% crispy form %}
       <div class="row">
-        <div id="query_status" class="col-lg-6"></div>
+        <div id="query_status" class="col-lg-6 span6"></div>
       </div>
     </div>
 
-    <div class="col-lg-8">
+    <div class="col-lg-8 span8">
       <pre id="id_query_pre"><code class="language-sql"></code></pre>
       <ul class="nav nav-tabs">
         <li class="active"><a href="#id_query_{{query.id}}" data-toggle="tab">Chart</a></li>
