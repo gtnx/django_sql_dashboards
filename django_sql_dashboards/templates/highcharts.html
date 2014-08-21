@@ -1,3 +1,4 @@
+{% load sql_dashboards_tags %}
 <script type="text/javascript">
     try {
         $(function () {
@@ -17,7 +18,7 @@
                     title: {
                         enabled: true,
                         text: '{{obj.xlegend}}'
-                    },
+                    }
                 },
                 yAxis: {
                     title: {
@@ -39,7 +40,7 @@
                 {% for serie in obj.series %}
                 {
                     name: '{{serie.name|escapejs}}',
-                    data: [{% for y in serie.data %}{{y|floatformat:3}},{% endfor %}]
+                    data: [{% for y in serie.data %}{{y|floatdot:3}},{% endfor %}]
                 },
                 {% endfor %}
                 ],

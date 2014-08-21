@@ -6,7 +6,7 @@ from django.db import connection, DatabaseError
 from django.db.models import Max, Q
 
 from models import Query, Dashboard, DashboardQuery, DbConfig
-from forms import QueryForm, QueryAddForm, DashboardForm
+from forms import QueryForm, QueryAddForm, DashboardForm, CustomQueryForm
 from filters import QueryFilter, DashboardFilter
 
 def default(request):
@@ -14,7 +14,7 @@ def default(request):
 
 def home(request):
   queries = Query.objects.all()
-  dashboards = Dashboard.objects.all
+  dashboards = Dashboard.objects.all()
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))  
 
 @login_required
@@ -57,10 +57,20 @@ def query_editor(request, query_id = None):
 
     if query and ("run" in request.POST or "run_save" in request.POST):
       query_executed = True
-      data, headers, obj = query.getAll()
+      custom_data = dict([(k, v.initial) for k,v in CustomQueryForm(query).fields.items()]) if query.custom else None
+      query.getAll(custom_data = custom_data)
   if request.method == "POST" and ("save" in request.POST or "run_save" in request.POST):
     return HttpResponseRedirect("/sql_dashboards/query/edit/%s" % query.id)
   return render_to_response("django_sql_dashboards/query_editor.html", locals(), RequestContext(request))
+
+@login_required
+def query_custom(request, query_id):
+  try:
+    query = Query.objects.get(id = query_id)
+  except:
+    return HttpResponseRedirect("/sql_dashboards/query")
+  form = CustomQueryForm(query)
+  return render_to_response("django_sql_dashboards/query_custom.html", locals(), RequestContext(request))
 
 @login_required
 def dashboard_create(request):
@@ -106,6 +116,9 @@ def dashboard_editor(request, dashboard_id = None):
       print(str(e))
       return HttpResponseRedirect("/sql_dashboards/dashboard")
   
+  dashboard.getQueries()
+  for query in dashboard.queries:
+    query.getAll(dict([(k, v.initial) for k,v in CustomQueryForm(query).fields.items()]) if query.custom else None)
   return render_to_response("django_sql_dashboards/dashboard_editor.html", locals(), RequestContext(request))
 
 @login_required

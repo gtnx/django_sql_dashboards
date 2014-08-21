@@ -10,10 +10,10 @@
 </style>
 {% load pagination_tags %}
 
+<h3><a href="{{SQL_DASHBOARDS_PREFIX}}/query/">Queries</a> <a class="btn btn-success btn-sm" href="{{SQL_DASHBOARDS_PREFIX}}/query/add"><span class="glyphicon glyphicon-plus"></span> Add</a></h3>
 {% if query_filter %}
 {% autopaginate query_filter.qs 10 as filter_list %}
-<h3><a href="{{SQL_DASHBOARDS_PREFIX}}/query/">Queries</a> <a class="btn btn-success btn-sm" href="{{SQL_DASHBOARDS_PREFIX}}/query/add"><span class="glyphicon glyphicon-plus"></span> Add</a></h3>
-<div class="col-lg-8">
+<div class="col-lg-8 span8">
   <table class="table table-condensed">
     <tr><th>Title</th><th>Creator</th><th>Db</th><th>Action</th></tr>
   {% for obj in filter_list %}
@@ -27,12 +27,10 @@
   </table>
   {% paginate %}
 </div>
-<div class="col-lg-2 well listing" style="overflow: hidden;">
+<div class="col-lg-2 span2 well listing" style="overflow: hidden;">
   <form action="" method="get">
     <input type="submit" class="btn btn-primary btn-sm" value="Filter"/>
     {{ query_filter.form.as_p }}
   </form>
 </div>
-{% else %}
-<h3><a href="{{SQL_DASHBOARDS_PREFIX}}/query">Voir toutes les queries</a></h3>
 {% endif %}
