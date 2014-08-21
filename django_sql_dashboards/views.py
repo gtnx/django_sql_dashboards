@@ -14,7 +14,7 @@ def default(request):
 
 def home(request):
   queries = Query.objects.all()
-  dashboards = Dashboard.objects.all
+  dashboards = Dashboard.objects.all()
   return render_to_response("django_sql_dashboards/home.html", locals(), RequestContext(request))  
 
 @login_required
