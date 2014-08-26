@@ -29,8 +29,8 @@ Query Editor - {{query.title}}
         <div class="tab-pane active" id="id_query_{{query.id}}">
           {% if query.obj %}
           {{query.toHighcharts}}
-          {% elif query_executed %}
-          <br><p><span class="label label-danger">Impossible to load query</span></p>
+          {% elif query.error %}
+          <br><p><span class="label label-danger">Impossible to load query : {{query.error}}</span></p>
           {% else %}
           <br><p><span class="label label-default">Press run to execute the query</span></p>
           {% endif %}

@@ -67,22 +67,24 @@ class Query(models.Model):
         if (datetime.datetime.now().replace(tzinfo=tz.tzlocal()) - history[0].ts_update).seconds <= self.cache_ttl:
           return pickle.loads(history[0].data)
 
-    try:
-      if self.custom:
-        data = self.db.getDb().hquery(self.query % custom_data)
-      else:
-        data = self.db.getDb().hquery(self.query)
-      if data:
-        if self.id:
-          QueryHistory.objects.filter(query = self).delete()
-          QueryHistory(query = self, data = pickle.dumps(data)).save()
-    except Exception as e:
-      logger.error(str(e))
-      return None
+    if self.custom:
+      data = self.db.getDb().hquery(self.query % custom_data)
+    else:
+      data = self.db.getDb().hquery(self.query)
+    if data:
+      if self.id:
+        QueryHistory.objects.filter(query = self).delete()
+        QueryHistory(query = self, data = pickle.dumps(data)).save()
     return data
 
   def getAll(self, custom_data = None):
-    ret = self.execute(custom_data = custom_data)
+    try:
+      ret = self.execute(custom_data = custom_data)
+    except Exception as e:
+      ret = None
+      self.error = e
+      logger.error("Cannot execute %(self)s, %(e)s" % locals())
+
     if ret:
       self.data, self.headers = ret
       self.obj = {"title": self.title,
