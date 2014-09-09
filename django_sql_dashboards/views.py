@@ -57,9 +57,10 @@ def query_editor(request, query_id = None):
 
     if query and ("run" in request.POST or "run_save" in request.POST):
       query_executed = True
+      print(request.POST.keys())
       custom_data = dict([(k, v.initial) for k,v in CustomQueryForm(query).fields.items()]) if query.custom else None
       query.getAll(custom_data = custom_data)
-  if request.method == "POST" and ("save" in request.POST or "run_save" in request.POST):
+  if request.method == "POST" and "save" in request.POST:
     return HttpResponseRedirect("/sql_dashboards/query/edit/%s" % query.id)
   return render_to_response("django_sql_dashboards/query_editor.html", locals(), RequestContext(request))
 

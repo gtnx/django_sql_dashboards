@@ -20,7 +20,7 @@ class QueryForm(forms.ModelForm):
                    HTML("""<a href="%s/query/add" class="btn btn-success">+ Add</a>""" % settings.SQL_DASHBOARDS_PREFIX),
       ),
       HTML("<br>"),
-      Fieldset('', 'db', 'title', 'type', 'query'),
+      Fieldset('', 'db', 'title', 'type', 'query', 'pivot'),
       Accordion(AccordionGroup('Other options', 'subtitle', 'xlegend', 'ylegend', 'public', 'legend_align', 'cache_ttl')),
       HTML("<br>"),
       ButtonHolder(Submit('run', 'Run'), Submit('save', 'Save'), Submit('run_save', 'Run & Save'),

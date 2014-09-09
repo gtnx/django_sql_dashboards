@@ -9,6 +9,8 @@ from django.template import Context, loader
 from db import DB
 from django.contrib.auth.models import User
 from picklefield.fields import PickledObjectField
+import pandas
+import numpy as np
 
 logger = logging.getLogger("sql-dashboards")
 
@@ -55,6 +57,7 @@ class Query(models.Model):
   cache_ttl = models.IntegerField(default = 0, choices = ((0, "No cache"), (60, "1 minute"), (300, "5 minutes"), (3600, "1 hour"), (86400, "1 day"), (7*86400, "1 week")))
 
   custom = models.BooleanField(default = False)
+  pivot = models.BooleanField(default = False)
 
   def __init__(self, *args, **kwargs):
     super(Query, self).__init__(*args, **kwargs)
@@ -71,6 +74,12 @@ class Query(models.Model):
       data = self.db.getDb().hquery(self.query % custom_data)
     else:
       data = self.db.getDb().hquery(self.query)
+      if self.pivot:
+        if len(data[1]) !=3 and self.pivot:
+          raise Exception("A pivot query must have 3 columns, %s columns given" % len(data[1]))
+        df = pandas.DataFrame(list(data[0]), columns = data[1])
+        df = df.pivot(index = data[1][0], columns = data[1][1], values = data[1][2]).reset_index().fillna(0)
+        data = df.as_matrix(), df.columns
     if data:
       if self.id:
         QueryHistory.objects.filter(query = self).delete()
@@ -107,7 +116,7 @@ class Query(models.Model):
         return loader.get_template('django_sql_dashboards/table.html').render(Context(locals()))
       for serie in obj["series"]:
         for x in serie["data"]:
-          if not isinstance(x, long) and not isinstance(x, decimal.Decimal) and not isinstance(x, float):
+          if not isinstance(x, int)  and not isinstance(x, long) and not isinstance(x, decimal.Decimal) and not isinstance(x, float):
             raise Exception("Not properly formatted. Maybe null fields ?")
       return loader.get_template('django_sql_dashboards/highcharts.html').render(Context(locals()))
     except Exception as e:
