@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django_sql_dashboards.settings import SQL_DASHBOARDS_MEDIA_ROOT
 
 urlpatterns = patterns('',
-  url(r'^$', 'django_sql_dashboards.views.home', name='home'),
+  url(r'^$', 'django_sql_dashboards.views.home', name='sql_dashboards_home'),
   url(r'^query/?$', 'django_sql_dashboards.views.query_view', name='query_all'),
   url(r'^query/add/?$', 'django_sql_dashboards.views.query_editor', name='query_editor'),
   url(r'^query/delete/(\d+)$', 'django_sql_dashboards.views.query_delete', name='query_delete'),
