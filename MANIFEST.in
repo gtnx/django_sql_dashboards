@@ -1,2 +1,1 @@
 recursive-include django_sql_dashboards *
-recursive-exclude django_sql_dashboards/migrations *
