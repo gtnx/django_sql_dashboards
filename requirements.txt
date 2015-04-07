@@ -1,0 +1,7 @@
+django-bootstrap3 >= 2.3.0
+MySQL-python
+South
+django-filter
+django-picklefield
+python-dateutil
+django-pagination

@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
+
+from __future__ import absolute_import, division, print_function
+
 from distutils.core import setup
 from setuptools import find_packages
+
 
 setup(
     name='django_sql_dashboards',
@@ -9,15 +13,7 @@ setup(
     description='',
     long_description=open('README.txt').read(),
     zip_safe=False,
-    install_requires=[
-       "django-bootstrap3>=2.3.0",
-       "MySQL-python",
-       "South",
-       "django-filter",
-       "django-picklefield",
-       "python-dateutil",
-       "django-pagination"
-    ],
-    packages = find_packages(),
+    install_requires=map(lambda line: line.strip("\n"), open("requirements.txt", "r").readlines()),
+    packages=find_packages(),
     include_package_data=True,
 )
